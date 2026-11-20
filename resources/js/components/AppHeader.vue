@@ -12,24 +12,24 @@ import {
     navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import UserMenuContent from '@/components/UserMenuContent.vue';
 import { getInitials } from '@/composables/useInitials';
-import type { BreadcrumbItem, NavItem } from '@/types';
+import type { BreadcrumbItem, NavItem, SharedData, User } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
-import { BookOpen, Folder, LayoutGrid, Menu, Search } from 'lucide-vue-next';
+import { LayoutGrid, Menu, Search } from 'lucide-vue-next';
 import { computed } from 'vue';
+import Breadcrumbs from '@/components/ui/breadcrumb/Breadcrumb.vue';
 
 interface Props {
     breadcrumbs?: BreadcrumbItem[];
 }
 
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
     breadcrumbs: () => [],
 });
 
-const page = usePage();
-const auth = computed(() => page.props.auth);
+const page = usePage<SharedData>();
+const authUser = computed<User | null>(() => (page.props.auth as any)?.user ?? null);
 
 const isCurrentRoute = (url: string) => {
     return page.url === url;
@@ -39,22 +39,9 @@ const activeItemStyles = computed(() => (url: string) => (isCurrentRoute(url) ? 
 
 const mainNavItems: NavItem[] = [
     {
-        title: 'Dashboard',
-        href: '/dashboard',
+        title: 'Painel Principal',
+        href: '/painel',
         icon: LayoutGrid,
-    },
-];
-
-const rightNavItems: NavItem[] = [
-    {
-        title: 'Repository',
-        href: 'https://github.com/laravel/vue-starter-kit',
-        icon: Folder,
-    },
-    {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits',
-        icon: BookOpen,
     },
 ];
 </script>
@@ -72,7 +59,7 @@ const rightNavItems: NavItem[] = [
                             </Button>
                         </SheetTrigger>
                         <SheetContent side="left" class="w-[300px] p-6">
-                            <SheetTitle class="sr-only">Navigation Menu</SheetTitle>
+                            <SheetTitle class="sr-only">Menu de Navegação</SheetTitle>
                             <SheetHeader class="flex justify-start text-left">
                                 <AppLogoIcon class="size-6 fill-current text-black dark:text-white" />
                             </SheetHeader>
@@ -89,19 +76,6 @@ const rightNavItems: NavItem[] = [
                                         {{ item.title }}
                                     </Link>
                                 </nav>
-                                <div class="flex flex-col space-y-4">
-                                    <a
-                                        v-for="item in rightNavItems"
-                                        :key="item.title"
-                                        :href="item.href"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        class="flex items-center space-x-2 text-sm font-medium"
-                                    >
-                                        <component v-if="item.icon" :is="item.icon" class="h-5 w-5" />
-                                        <span>{{ item.title }}</span>
-                                    </a>
-                                </div>
                             </div>
                         </SheetContent>
                     </Sheet>
@@ -132,32 +106,12 @@ const rightNavItems: NavItem[] = [
 
                 <div class="ml-auto flex items-center space-x-2">
                     <div class="relative flex items-center space-x-1">
-                        <Button variant="ghost" size="icon" class="group h-9 w-9 cursor-pointer">
+                        <Button variant="ghost" size="icon" class="group h-9 w-9 cursor-pointer" title="Pesquisar">
                             <Search class="size-5 opacity-80 group-hover:opacity-100" />
                         </Button>
-
-                        <div class="hidden space-x-1 lg:flex">
-                            <template v-for="item in rightNavItems" :key="item.title">
-                                <TooltipProvider :delay-duration="0">
-                                    <Tooltip>
-                                        <TooltipTrigger>
-                                            <Button variant="ghost" size="icon" as-child class="group h-9 w-9 cursor-pointer">
-                                                <a :href="item.href" target="_blank" rel="noopener noreferrer">
-                                                    <span class="sr-only">{{ item.title }}</span>
-                                                    <component :is="item.icon" class="size-5 opacity-80 group-hover:opacity-100" />
-                                                </a>
-                                            </Button>
-                                        </TooltipTrigger>
-                                        <TooltipContent>
-                                            <p>{{ item.title }}</p>
-                                        </TooltipContent>
-                                    </Tooltip>
-                                </TooltipProvider>
-                            </template>
-                        </div>
                     </div>
 
-                    <DropdownMenu>
+                    <DropdownMenu v-if="authUser">
                         <DropdownMenuTrigger :as-child="true">
                             <Button
                                 variant="ghost"
@@ -165,22 +119,22 @@ const rightNavItems: NavItem[] = [
                                 class="relative size-10 w-auto rounded-full p-1 focus-within:ring-2 focus-within:ring-primary"
                             >
                                 <Avatar class="size-8 overflow-hidden rounded-full">
-                                    <AvatarImage :src="auth.user.avatar" :alt="auth.user.name" />
+                                    <AvatarImage v-if="authUser.avatar" :src="authUser.avatar" :alt="authUser.name" />
                                     <AvatarFallback class="rounded-lg bg-neutral-200 font-semibold text-black dark:bg-neutral-700 dark:text-white">
-                                        {{ getInitials(auth.user?.name) }}
+                                        {{ getInitials(authUser.name) }}
                                     </AvatarFallback>
                                 </Avatar>
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" class="w-56">
-                            <UserMenuContent :user="auth.user" />
+                            <UserMenuContent :user="authUser" />
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
             </div>
         </div>
 
-        <div v-if="props.breadcrumbs.length > 1" class="flex w-full border-b border-sidebar-border/70">
+        <div v-if="breadcrumbs.length > 1" class="flex w-full border-b border-sidebar-border/70">
             <div class="mx-auto flex h-12 w-full items-center justify-start px-4 text-neutral-500 md:max-w-7xl">
                 <Breadcrumbs :breadcrumbs="breadcrumbs" />
             </div>

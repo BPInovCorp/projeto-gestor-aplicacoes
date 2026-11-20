@@ -4,7 +4,7 @@ import NavUser from '@/components/NavUser.vue';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
-import { LayoutGrid } from 'lucide-vue-next';
+import { LayoutGrid, Users } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 
 const mainNavItems: NavItem[] = [
@@ -12,6 +12,14 @@ const mainNavItems: NavItem[] = [
         title: 'Painel Principal',
         href: '/painel',
         icon: LayoutGrid,
+    },
+];
+
+const accessNavItems: NavItem[] = [
+    {
+        title: 'Utilizadores',
+        href: '/utilizadores',
+        icon: Users,
     },
 ];
 </script>
@@ -32,6 +40,7 @@ const mainNavItems: NavItem[] = [
 
         <SidebarContent>
             <NavMain :items="mainNavItems" label="Principal" />
+            <NavMain :items="accessNavItems" label="Gestão de Acessos" />
         </SidebarContent>
 
         <SidebarFooter>
