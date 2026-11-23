@@ -32,14 +32,14 @@ class RoleAndPermissionSeeder extends Seeder
         ];
 
         foreach ($permissions as $permission) {
-            Permission::create(['name' => $permission]);
+            Permission::firstOrCreate(['name' => $permission]);
         }
 
-        $roleAdmin = Role::create(['name' => 'administrador']);
-        $roleAdmin->givePermissionTo(Permission::all());
+        $roleAdmin = Role::firstOrCreate(['name' => 'administrador']);
+        $roleAdmin->syncPermissions(Permission::all());
 
-        $roleComercial = Role::create(['name' => 'gestor_comercial']);
-        $roleComercial->givePermissionTo([
+        $roleComercial = Role::firstOrCreate(['name' => 'gestor_comercial']);
+        $roleComercial->syncPermissions([
             'entidades.criar', 'entidades.ler', 'entidades.atualizar', 'entidades.eliminar',
             'contactos.criar', 'contactos.ler', 'contactos.atualizar', 'contactos.eliminar',
             'artigos.criar', 'artigos.ler', 'artigos.atualizar', 'artigos.eliminar',
@@ -48,16 +48,16 @@ class RoleAndPermissionSeeder extends Seeder
             'calendario.criar', 'calendario.ler', 'calendario.atualizar', 'calendario.eliminar',
         ]);
 
-        $roleFinanceiro = Role::create(['name' => 'financeiro']);
-        $roleFinanceiro->givePermissionTo([
+        $roleFinanceiro = Role::firstOrCreate(['name' => 'financeiro']);
+        $roleFinanceiro->syncPermissions([
             'faturas_fornecedores.criar', 'faturas_fornecedores.ler', 'faturas_fornecedores.atualizar', 'faturas_fornecedores.pagar',
             'contas_bancarias.ler', 'contas_bancarias.gerir',
             'conta_corrente.ler', 'conta_corrente.gerir',
             'entidades.ler', 'artigos.ler',
         ]);
 
-        $roleOperacional = Role::create(['name' => 'operacional']);
-        $roleOperacional->givePermissionTo([
+        $roleOperacional = Role::firstOrCreate(['name' => 'operacional']);
+        $roleOperacional->syncPermissions([
             'artigos.ler',
             'calendario.criar', 'calendario.ler', 'calendario.atualizar',
             'ordens_trabalho.criar', 'ordens_trabalho.ler', 'ordens_trabalho.atualizar', 'ordens_trabalho.eliminar',

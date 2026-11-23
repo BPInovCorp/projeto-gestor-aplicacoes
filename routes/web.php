@@ -1,6 +1,11 @@
 <?php
 
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\CalendarEventActionController;
+use App\Http\Controllers\CalendarEventTypeController;
+use App\Http\Controllers\ContactRoleController;
+use App\Http\Controllers\CountryController;
+use App\Http\Controllers\VatRateController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -14,6 +19,14 @@ Route::get('painel', function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('utilizadores', UserController::class)->parameters(['utilizadores' => 'user']);
+    
+    Route::middleware(['can:configuracoes.gerir'])->prefix('configuracoes')->name('settings.')->group(function () {
+        Route::resource('paises', CountryController::class)->names('countries')->except(['create', 'show', 'edit']);
+        Route::resource('funcoes-contacto', ContactRoleController::class)->names('contact-roles')->except(['create', 'show', 'edit']);
+        Route::resource('taxas-iva', VatRateController::class)->names('vat-rates')->except(['create', 'show', 'edit']);
+        Route::resource('tipos-calendario', CalendarEventTypeController::class)->names('calendar-event-types')->except(['create', 'show', 'edit']);
+        Route::resource('acoes-calendario', CalendarEventActionController::class)->names('calendar-event-actions')->except(['create', 'show', 'edit']);
+    });
 });
 
 require __DIR__.'/settings.php';
