@@ -20,6 +20,8 @@ Route::get('painel', function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('utilizadores', UserController::class)->parameters(['utilizadores' => 'user']);
     
+    Route::resource('entidades', \App\Http\Controllers\EntityController::class)->names('entities');
+
     Route::middleware(['can:configuracoes.gerir'])->prefix('configuracoes')->name('settings.')->group(function () {
         Route::resource('paises', CountryController::class)->names('countries')->except(['create', 'show', 'edit']);
         Route::resource('funcoes-contacto', ContactRoleController::class)->names('contact-roles')->except(['create', 'show', 'edit']);
