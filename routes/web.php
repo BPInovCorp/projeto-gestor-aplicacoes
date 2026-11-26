@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CalendarEventActionController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\CalendarEventTypeController;
 use App\Http\Controllers\ContactRoleController;
 use App\Http\Controllers\CountryController;
@@ -23,6 +24,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     
     Route::resource('entidades', \App\Http\Controllers\EntityController::class)->names('entities');
     Route::post('vies/validar', ViesController::class)->name('vies.validar');
+    Route::resource('contactos', ContactController::class)->parameters(['contactos' => 'contact'])->names('contacts');
 
     Route::middleware(['can:configuracoes.gerir'])->prefix('configuracoes')->name('settings.')->group(function () {
         Route::resource('paises', CountryController::class)->names('countries')->except(['create', 'show', 'edit']);
