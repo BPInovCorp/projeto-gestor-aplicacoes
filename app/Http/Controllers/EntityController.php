@@ -41,7 +41,7 @@ class EntityController extends Controller
         Gate::authorize('entidades.criar');
 
         return Inertia::render('entities/Form', [
-            'countries' => Country::where('is_active', true)->get(['id', 'name']),
+            'countries' => Country::where('is_active', true)->get(['id', 'name', 'code']),
         ]);
     }
 
@@ -57,7 +57,7 @@ class EntityController extends Controller
 
         return Inertia::render('entities/Form', [
             'entity' => $entity,
-            'countries' => Country::where('is_active', true)->get(['id', 'name']),
+            'countries' => Country::where('is_active', true)->get(['id', 'name', 'code']),
         ]);
     }
 

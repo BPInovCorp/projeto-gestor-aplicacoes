@@ -6,6 +6,7 @@ use App\Http\Controllers\CalendarEventTypeController;
 use App\Http\Controllers\ContactRoleController;
 use App\Http\Controllers\CountryController;
 use App\Http\Controllers\VatRateController;
+use App\Http\Controllers\ViesController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -21,6 +22,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('utilizadores', UserController::class)->parameters(['utilizadores' => 'user']);
     
     Route::resource('entidades', \App\Http\Controllers\EntityController::class)->names('entities');
+    Route::post('vies/validar', ViesController::class)->name('vies.validar');
 
     Route::middleware(['can:configuracoes.gerir'])->prefix('configuracoes')->name('settings.')->group(function () {
         Route::resource('paises', CountryController::class)->names('countries')->except(['create', 'show', 'edit']);

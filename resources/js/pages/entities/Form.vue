@@ -8,11 +8,28 @@ import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import { LoaderCircle } from 'lucide-vue-next';
+import axios, { isAxiosError } from 'axios';
+import { LoaderCircle, Search } from 'lucide-vue-next';
+import { ref } from 'vue';
 
 interface Country {
     id: number;
     name: string;
+    code: string;
+}
+
+interface ViesResponse {
+    valido: boolean;
+    nome?: string | null;
+    morada?: string | null;
+    codigo_postal?: string | null;
+    localidade?: string | null;
+    mensagem?: string;
+}
+
+interface ViesMensagem {
+    texto: string;
+    sucesso: boolean;
 }
 
 interface Props {
@@ -61,6 +78,58 @@ const form = useForm({
     is_active: props.entity?.is_active ?? true,
 });
 
+const isCheckingVies = ref(false);
+const viesMensagem = ref<ViesMensagem | null>(null);
+
+const consultarVies = async () => {
+    viesMensagem.value = null;
+
+    if (!form.nif) {
+        viesMensagem.value = { texto: 'Introduza um NIF antes de consultar.', sucesso: false };
+        return;
+    }
+
+    const selectedCountry = props.countries.find((c) => c.id === Number(form.country_id));
+    if (!selectedCountry?.code) {
+        viesMensagem.value = { texto: 'Selecione um país válido.', sucesso: false };
+        return;
+    }
+
+    isCheckingVies.value = true;
+
+    try {
+        const response = await axios.post<ViesResponse>(route('vies.validar'), {
+            codigo_pais: selectedCountry.code,
+            nif: form.nif,
+        });
+
+        if (response.data.valido) {
+            if (response.data.nome) {
+                form.name = response.data.nome;
+            }
+            if (response.data.morada) {
+                form.address = response.data.morada;
+            }
+            if (response.data.codigo_postal) {
+                form.postal_code = response.data.codigo_postal;
+            }
+            if (response.data.localidade) {
+                form.city = response.data.localidade;
+            }
+            viesMensagem.value = { texto: response.data.mensagem ?? 'NIF validado com sucesso.', sucesso: true };
+        }
+    } catch (error: unknown) {
+        if (isAxiosError<{ mensagem?: string; message?: string }>(error) && error.response?.data) {
+            const texto = error.response.data.mensagem ?? error.response.data.message ?? 'Erro ao consultar o serviço VIES.';
+            viesMensagem.value = { texto, sucesso: false };
+        } else {
+            viesMensagem.value = { texto: 'Erro de comunicação ao validar no VIES.', sucesso: false };
+        }
+    } finally {
+        isCheckingVies.value = false;
+    }
+};
+
 const submit = () => {
     if (isEditing && props.entity) {
         form.put(route('entities.update', { entity: props.entity.id }));
@@ -101,7 +170,22 @@ const submit = () => {
 
                         <div class="grid gap-2">
                             <Label for="nif">NIF</Label>
-                            <Input id="nif" v-model="form.nif" />
+                            <div class="flex gap-2">
+                                <Input id="nif" v-model="form.nif" class="flex-1" />
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    :disabled="isCheckingVies || !form.nif"
+                                    @click="consultarVies"
+                                >
+                                    <LoaderCircle v-if="isCheckingVies" class="mr-2 h-4 w-4 animate-spin" />
+                                    <Search v-else class="mr-2 h-4 w-4" />
+                                    VIES
+                                </Button>
+                            </div>
+                            <p v-if="viesMensagem" :class="viesMensagem.sucesso ? 'text-xs text-green-600 dark:text-green-400' : 'text-xs text-destructive'">
+                                {{ viesMensagem.texto }}
+                            </p>
                             <InputError :message="form.errors.nif" />
                         </div>
 
