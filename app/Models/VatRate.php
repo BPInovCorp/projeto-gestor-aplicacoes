@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class VatRate extends Model
 {
@@ -18,5 +19,10 @@ class VatRate extends Model
             'value' => 'decimal:2',
             'is_active' => 'boolean',
         ];
+    }
+
+    public function articles(): HasMany
+    {
+        return $this->hasMany(Article::class);
     }
 }

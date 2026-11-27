@@ -4,7 +4,7 @@ import NavUser from '@/components/NavUser.vue';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
-import { Building2, Calendar, Contact, Globe, LayoutGrid, ListChecks, Percent, Truck, Users, UserRoundCog } from 'lucide-vue-next';
+import { Building2, Calendar, Contact, Globe, LayoutGrid, ListChecks, Package, Percent, Truck, Users, UserRoundCog } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 
 const mainNavItems: NavItem[] = [
@@ -48,6 +48,11 @@ const settingsNavItems: NavItem[] = [
         title: 'Funções de Contacto',
         href: '/configuracoes/funcoes-contacto',
         icon: UserRoundCog,
+    },
+    {
+        title: 'Artigos',
+        href: '/artigos',
+        icon: Package,
     },
     {
         title: 'Taxas de IVA',
